@@ -26,12 +26,17 @@ In addition, it preforms type validation - Input data is validated automatically
 
 3. **Project Structure**
 
-app/
-├── main.py         # Entry point, FastAPI app initialization
-├── routers/
-│   ├── accounts.py # Account-related endpoints (deposit, withdraw, balance)
-│   └── health.py   # Health check endpoint
-└── services.py     # Business logic (account operations)
+```bash
+atm-api/
+├── app/
+│   ├── main.py            # Entry point of the API
+│   ├── routers/           # API route definitions
+│   │   ├── health.py
+│   │   └── accounts.py
+│   └── services.py        # Business logic and account services
+├── requirements.txt       # Python dependencies
+├── Dockerfile             # Docker build configuration
+└── README.md              # Project documentation
 
 
 4. **Logging**
