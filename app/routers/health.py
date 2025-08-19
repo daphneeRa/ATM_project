@@ -4,6 +4,7 @@ from app.services import account_service
 
 router = APIRouter(tags=["Health Check"])
 
+# root endpoint - API information
 @router.get("/", response_model=HealthResponse)
 async def health_check():
     """Health check endpoint with API information"""

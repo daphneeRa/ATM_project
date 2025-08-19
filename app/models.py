@@ -1,10 +1,8 @@
-from pydantic import BaseModel, validator, Field
+from pydantic import BaseModel, field_validator, Field
 from typing import Dict, List, Optional, Any
 from datetime import datetime
 
-# ============================================================================
-# REQUEST MODELS
-# ============================================================================
+#################### REQUEST MODELS ####################
 
 class TransactionRequest(BaseModel):
     """Request model for deposit and withdraw operations"""
@@ -15,23 +13,21 @@ class TransactionRequest(BaseModel):
         example=100.50
     )
     
-    @validator('amount')
+    @field_validator('amount')
     def validate_amount_precision(cls, v):
         """Ensure amount has at most 2 decimal places"""
         if round(v, 2) != v:
             raise ValueError('Amount can have at most 2 decimal places')
         return v
     
-    @validator('amount')
+    @field_validator('amount')
     def validate_reasonable_amount(cls, v):
         """Ensure amount is reasonable (not too large)"""
-        if v > 1_000_000:  # 1 million max per transaction
+        if v > 1_000_000:  
             raise ValueError('Amount cannot exceed $1,000,000 per transaction')
         return v
 
-# ============================================================================
-# RESPONSE MODELS
-# ============================================================================
+#################### RESPONSE MODELS ####################
 
 class BaseResponse(BaseModel):
     """Base response model with common fields"""
@@ -76,9 +72,7 @@ class AccountListResponse(BaseResponse):
     total_accounts: int = Field(..., description="Total number of accounts")
     accounts: List[AccountInfo] = Field(..., description="List of account information")
 
-# ============================================================================
-# EXCEPTION CLASSES
-# ============================================================================
+#################### EXCEPTION CLASSES ####################
 
 class ATMException(Exception):
     """Base exception for ATM operations"""
