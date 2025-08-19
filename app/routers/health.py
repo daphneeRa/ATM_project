@@ -7,7 +7,7 @@ router = APIRouter(tags=["Health Check"])
 @router.get("/", response_model=HealthResponse)
 async def health_check():
     """Health check endpoint with API information"""
-    from main import Config  # Import here to avoid circular import
+    from app.main import Config  # Import to avoid circular import
     
     return HealthResponse(
         message=f"{Config.APP_NAME} is running",

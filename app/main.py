@@ -1,4 +1,3 @@
-# app/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import health, accounts
@@ -53,7 +52,7 @@ async def startup_event():
 # Run the app
 if __name__ == "__main__":
     uvicorn.run(
-        "app.main:app",  # <-- note the module path
+        "app.main:app", 
         host=Config.HOST,
         port=Config.PORT,
         reload=Config.DEBUG,
