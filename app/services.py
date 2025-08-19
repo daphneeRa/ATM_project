@@ -16,13 +16,18 @@ def log_transaction(account_number: str, transaction_type: str, amount: Decimal,
         f"Amount: ${amount} | Balance: ${balance_before} -> ${balance_after}"
     )
 
+# Sample accounts data
+SAMPLE_ACCOUNTS = {
+    '12345': {'account_number': '12345', 'balance': '1000.00'},
+    '67890': {'account_number': '67890', 'balance': '2500.50'},
+    '11111': {'account_number': '11111', 'balance': '0.00'}
+}
+
 class AccountService:
     """Service class to handle all account-related business logic"""
     
     def __init__(self):
-        """Initialize with sample accounts"""
-        # Import here to avoid circular import
-        from main import SAMPLE_ACCOUNTS
+        """Initialize with sample accounts"""        
         
         self.accounts = {}
         for account_num, account_data in SAMPLE_ACCOUNTS.items():

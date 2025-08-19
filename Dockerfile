@@ -22,5 +22,4 @@ COPY ./app /app/app
 USER appuser
 EXPOSE 8000
 
-# Render sets $PORT automatically -> use it
-CMD uvicorn app.main:app --host 0.0.0.0 --port $PORT
+CMD ["sh", "-c", "python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT}"]
