@@ -15,17 +15,15 @@ The system uses in-memory sample accounts.
 
 ## Design Decisions
 
-1. **Language Choice – Python**
+1. **Language Choice - Python:**
 I chose Python due to familiarity and proficiency with the language. Its simplicity allows fast prototyping while maintaining readability and maintainability.
 
-2. **Framework – FastAPI**
-
+2. **Framework - FastAPI:**
 I chose FastAPI due to it's high practical usage and the fact it's built on Starlette and Pydantic for asynchronous, high-performance APIs.  
 Moreover, it provides automatic documentation - /docs (Swagger UI) and /redoc (ReDoc).
 In addition, it preforms type validation - Input data is validated automatically, reducing boilerplate.
 
-3. **Project Structure**
-
+3. **Project Structure:**
 ```bash
 atm-api/
 ├── app/
@@ -39,20 +37,16 @@ atm-api/
 └── README.md              # Project documentation
 ```
 
-4. **Logging**
-
+4. **Logging:**
 Used Python’s built-in logging to track API startup, requests, and sample account data.
 
-5. **Error Handling**
-
+5. **Error Handling:**
 Carefully designed API responses to return clear error messages (e.g., insufficient funds, invalid account).
 
-6. **Modular Code Structure**
-
+6. **Modular Code Structure:**
 Split code into main.py, routers, and services to improve maintainability ans scalability.
 
-7. **Deployment Considerations**
-
+7. **Deployment Considerations:**
 Used Docker for reproducible environments.
 Ensured the app respects dynamic $PORT variables for hosting platforms.
 
