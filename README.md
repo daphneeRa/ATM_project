@@ -37,7 +37,7 @@ atm-api/
 ├── requirements.txt       # Python dependencies
 ├── Dockerfile             # Docker build configuration
 └── README.md              # Project documentation
-
+```
 
 4. **Logging**
 
