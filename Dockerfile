@@ -16,6 +16,9 @@ RUN groupadd --gid 1000 appuser \
 COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
+# Copy application source
+COPY ./app /app/app
+
 USER appuser
 EXPOSE 8000
 
