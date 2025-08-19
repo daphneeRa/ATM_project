@@ -1,48 +1,129 @@
-# app/routers/accounts.py
 from fastapi import APIRouter, HTTPException, status
-from typing import List
-from ..models import Account
+from app.models import (
+    TransactionRequest, BalanceResponse, TransactionResponse, 
+    AccountListResponse, ErrorResponse, ATMException
+)
+from app.services import account_service
+import logging
 
-router = APIRouter()
+logger = logging.getLogger(__name__)
 
-# In-memory "database" for demonstration purposes
-accounts_db = {
-    "123456789": {
-        "account_id": "123456789",
-        "account_name": "John Doe",
-        "balance": 1000.00,
-        "description": "Primary Checking"
-    },
-    "987654321": {
-        "account_id": "987654321",
-        "account_name": "Jane Smith",
-        "balance": 500.50,
-        "description": "Savings"
-    },
-    "112233445": {
-        "account_id": "112233445",
-        "account_name": "Michael Johnson",
-        "balance": 250.75,
-        "description": "Business Account"
-    }
-}
+router = APIRouter(prefix="/accounts", tags=["Account Operations"])
 
-@router.post("/", response_model=Account)
-async def create_account(account: Account):
-    """Creates a new financial account."""
-    if account.account_id in accounts_db:
-        raise HTTPException(status_code=409, detail="Account ID already exists")
-    accounts_db[account.account_id] = account
-    return account
+def handle_atm_exception(exc: ATMException) -> HTTPException:
+    """Convert ATM exception to HTTP exception"""
+    return HTTPException(
+        status_code=exc.status_code,
+        detail={
+            "success": False,
+            "message": exc.message,
+            "error_code": exc.error_code,
+            "details": exc.details
+        }
+    )
 
-@router.get("/{account_id}", response_model=Account)
-async def get_account(account_id: str):
-    """Retrieves a specific financial account by its ID."""
-    if account_id not in accounts_db:
-        raise HTTPException(status_code=404, detail="Account not found")
-    return accounts_db[account_id]
+@router.get("", response_model=AccountListResponse)
+async def get_all_accounts():
+    """Get all accounts (for debugging purposes)"""
+    try:
+        accounts = account_service.get_all_accounts()
+        return AccountListResponse(
+            total_accounts=len(accounts),
+            accounts=accounts
+        )
+    except Exception as e:
+        logger.error(f"Error retrieving accounts: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail={"success": False, "message": "Internal server error", "error_code": "INTERNAL_ERROR"}
+        )
 
-@router.get("/", response_model=List[Account])
-async def list_accounts():
-    """Lists all available financial accounts."""
-    return list(accounts_db.values())
+@router.get(
+    "/{account_number}/balance", 
+    response_model=BalanceResponse,
+    responses={404: {"model": ErrorResponse}}
+)
+async def get_balance(account_number: str):
+    """Get account balance"""
+    try:
+        balance = account_service.get_balance(account_number)
+        return BalanceResponse(account_number=account_number, balance=float(balance))
+    
+    except ATMException as e:
+        logger.warning(f"ATM error in get_balance: {e.message}")
+        raise handle_atm_exception(e)
+    
+    except Exception as e:
+        logger.error(f"Unexpected error in get_balance: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail={"success": False, "message": "Internal server error", "error_code": "INTERNAL_ERROR"}
+        )
+
+@router.post(
+    "/{account_number}/deposit",
+    response_model=TransactionResponse,
+    responses={400: {"model": ErrorResponse}, 404: {"model": ErrorResponse}}
+)
+async def deposit_money(account_number: str, transaction: TransactionRequest):
+    """Deposit money into an account"""
+    try:
+        result = account_service.deposit(account_number, transaction.amount)
+        
+        return TransactionResponse(
+            message="Deposit successful",
+            account_number=account_number,
+            **result
+        )
+        
+    except ATMException as e:
+        logger.warning(f"ATM error in deposit: {e.message}")
+        raise handle_atm_exception(e)
+    
+    except ValueError as e:
+        logger.warning(f"Validation error in deposit: {e}")
+        raise HTTPException(
+            status_code=400,
+            detail={"success": False, "message": str(e), "error_code": "VALIDATION_ERROR"}
+        )
+    
+    except Exception as e:
+        logger.error(f"Unexpected error in deposit: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail={"success": False, "message": "Internal server error", "error_code": "INTERNAL_ERROR"}
+        )
+
+@router.post(
+    "/{account_number}/withdraw",
+    response_model=TransactionResponse,
+    responses={400: {"model": ErrorResponse}, 404: {"model": ErrorResponse}}
+)
+async def withdraw_money(account_number: str, transaction: TransactionRequest):
+    """Withdraw money from an account"""
+    try:
+        result = account_service.withdraw(account_number, transaction.amount)
+        
+        return TransactionResponse(
+            message="Withdrawal successful",
+            account_number=account_number,
+            **result
+        )
+        
+    except ATMException as e:
+        logger.warning(f"ATM error in withdraw: {e.message}")
+        raise handle_atm_exception(e)
+    
+    except ValueError as e:
+        logger.warning(f"Validation error in withdraw: {e}")
+        raise HTTPException(
+            status_code=400,
+            detail={"success": False, "message": str(e), "error_code": "VALIDATION_ERROR"}
+        )
+    
+    except Exception as e:
+        logger.error(f"Unexpected error in withdraw: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail={"success": False, "message": "Internal server error", "error_code": "INTERNAL_ERROR"}
+        )
